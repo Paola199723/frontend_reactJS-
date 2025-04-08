@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 export default function Navbar() {
@@ -12,10 +13,9 @@ export default function Navbar() {
         ☰
       </div>
       <div className={`menu ${isOpen ? "show" : ""}`}>
-        <a href="#">Inicio</a>
-        <a href="#">Productos</a>
-        <a href="#">  <FaShoppingCart style={{ marginRight: "4px" }} />
-        Carrito</a>
+      <Link to="/">Inicio</Link>
+      <Link to="/productos">Productos</Link>
+      <Link to="/carrito"><FaShoppingCart style={{ marginRight: "4px" }} />Carrito</Link>
       </div>
     </nav>
   );

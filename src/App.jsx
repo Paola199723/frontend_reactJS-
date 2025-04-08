@@ -1,16 +1,21 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import './components/Navbar.css'; // <--- Importas Tailwind acá
+import './components/Navbar.css';
+import './components/ProductCard.css';
+import Productos from "./components/productos";
 
 function App() {
   return (
     <>
+      <BrowserRouter>
       <Navbar />
-
-      {/* Espacio para el navbar fijo */}
-      <div className="pt-20">
-        <h1 className="text-4xl font-bold mt-4">Bienvenido a la tienda</h1>
-        {/* Tu contenido aquí */}
-      </div>
+      <Routes>
+        <Route path="/" element={<h1>Bienvenido</h1>} />
+        <Route path="/productos" element={<Productos />} />
+        <Route path="/carrito" element={<h1>Carrito</h1>} />
+        <Route path="/producto/:id" element={<h1>Detalle del producto</h1>} />
+      </Routes>
+    </BrowserRouter>
     </>
   );
 }
