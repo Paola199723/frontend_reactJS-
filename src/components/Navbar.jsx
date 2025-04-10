@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext"; // <== importa el contexto
+import { selectTotalItems } from "../redux/slice/cartSlice";
 import "./Navbar.css";
+
+// ...
+
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { totalItems } = useCart();
+  const totalItems = useSelector(selectTotalItems);
+
 
   return (
     <nav className="navbar">

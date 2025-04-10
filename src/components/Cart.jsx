@@ -1,44 +1,41 @@
-import React, { useState } from 'react';
-import { FaTrash } from 'react-icons/fa';
-import { useCart } from '../context/CartContext';
-import CheckoutModal from './CheckoutModal';
+import React, { useState } from "react";
+import { FaTrash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    removeFromCart,
+    selectCartItems,
+    selectTotalItems,
+    selectTotalPagar,
+    updateQuantity
+} from "../redux/slice/cartSlice";
+import CheckoutModal from "./CheckoutModal";
+import "./CheckoutModal.css";
 
 const Cart = () => {
-  const {
-    cartItems,
-    removeFromCart,
-    updateQuantity,
-    totalItems,
-    totalPagar,
-  } = useCart();
+  const cartItems = useSelector(selectCartItems);
+  const totalItems = useSelector(selectTotalItems);
+  const totalPagar = useSelector(selectTotalPagar);
+  const dispatch = useDispatch();
 
   const [showCheckout, setShowCheckout] = useState(false);
 
   return (
     <div style={{ display: 'flex', padding: '2rem', gap: '2rem' }}>
       {/* RESUMEN DE COMPRA */}
-      <div
-        style={{
-          flex: '1',
-          padding: '1rem',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          height: 'fit-content',
-        }}
-      >
+      <div style={{
+        flex: '1',
+        padding: '1rem',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        height: 'fit-content',
+      }}>
         <h2>Resumen de compra</h2>
-        <p>
-          <strong>Total de artículos:</strong> {totalItems}
-        </p>
-        <p>
-          <strong>Total a pagar:</strong> ${totalPagar.toLocaleString()}
-        </p>
-
-        <button onClick={() => setShowCheckout(true)}>Hacer Pedido</button>
-
-        {showCheckout && (
-          <CheckoutModal onClose={() => setShowCheckout(false)} />
-        )}
+        <p><strong>Total de artículos:</strong> {totalItems}</p>
+        <p><strong>Total a pagar:</strong> ${totalPagar.toLocaleString()}</p>
+        <button style={styles.button} disabled={cartItems.length === 0} onClick={() => setShowCheckout(true)} >
+          Hacer Pedido
+        </button>
+        {showCheckout && <CheckoutModal onClose={() => setShowCheckout(false)} />}
       </div>
 
       {/* LISTA DE ITEMS DEL CARRITO */}
@@ -69,24 +66,20 @@ const Cart = () => {
                 <select
                   value={producto.cantidad}
                   onChange={(e) =>
-                    updateQuantity(producto.id, parseInt(e.target.value))
+                    dispatch(updateQuantity({
+                      id: producto.id,
+                      cantidad: parseInt(e.target.value)
+                    }))
                   }
                 >
                   {[...Array(8).keys()].map((i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
-                    </option>
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
                   ))}
                 </select>
               </div>
               <button
-                onClick={() => removeFromCart(producto.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'red',
-                  cursor: 'pointer',
-                }}
+                onClick={() => dispatch(removeFromCart(producto.id))}
+                style={styles.button}
               >
                 <FaTrash size={20} />
               </button>
@@ -99,3 +92,59 @@ const Cart = () => {
 };
 
 export default Cart;
+const styles = {
+    heroSection: {
+      textAlign: 'center',
+      padding: '2rem',
+      backgroundColor: '#f5f5f5',
+      borderRadius: '10px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      maxWidth: '1000px',
+      margin: '2rem auto',
+    },
+    heading: {
+      fontSize: '2rem',
+      color: '#333',
+    },
+    image: {
+      width: '100%',
+      maxWidth: '500px',
+      margin: '1rem 0',
+      borderRadius: '8px',
+    },
+    text: {
+      fontSize: '1rem',
+      color: '#666',
+    },
+    button: {
+      display: 'inline-block',
+      padding: '0.8rem 2rem',
+      backgroundColor: '#007BFF',
+      color: '#fff',
+      fontSize: '1rem',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      marginTop: '1rem',
+      textDecoration: 'none',
+      transition: 'background-color 0.3s ease',
+    },
+    productSection: {
+      padding: '2rem',
+      maxWidth: '1200px',
+      margin: '0 auto',
+    },
+    subheading: {
+      textAlign: 'center',
+      fontSize: '1.8rem',
+      marginBottom: '1rem',
+      color: '#333',
+    },
+    productGrid: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '16px',
+      justifyContent: 'center',
+    },
+  };
+  

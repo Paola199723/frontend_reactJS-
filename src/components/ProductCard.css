@@ -1,40 +1,56 @@
-.product-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 12px;
-    width: 50%;
-    cursor: pointer;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
-    background-color: white;
+/* ProductCard.css */
+
+.product-card.redesigned {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 250px;
+  margin: 1rem;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.product-card.redesigned:hover {
+  transform: translateY(-5px);
+}
+
+.product-card.redesigned img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.product-info {
+  padding-top: 10px;
+}
+
+.product-info h3 {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.product-price {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #444;
+}
+
+.product-envio {
+  font-size: 0.9rem;
+  color: #007600;
+}
+
+@media (max-width: 768px) {
+  .product-card.redesigned {
+    width: 45%;
   }
-  
-  .product-card:hover {
-    transform: scale(1.02);
+}
+
+@media (max-width: 480px) {
+  .product-card.redesigned {
+    width: 100%;
   }
-  
-  .product-img {
-    width: 50%;
-    height: 50%;
-    object-fit: contain;
-  }
-  
-  .product-info {
-    padding-top: 8px;
-  }
-  
-  .product-price {
-    font-size: 1.2rem;
-    font-weight: bold;
-  }
-  
-  .product-cuotas {
-    font-size: 0.9rem;
-    color: green;
-  }
-  
-  .product-envio {
-    font-size: 0.9rem;
-    color: #007600;
-  }
-  
+}

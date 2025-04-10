@@ -1,4 +1,3 @@
-// ProductCard.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import './ProductCard.css';
@@ -11,15 +10,22 @@ export default function ProductCard({ producto }) {
   };
 
   return (
-    <div className="product-card" onClick={handleClick} style={{ cursor: "pointer" }}>
-      <img src={producto.img} alt={producto.description} />
-      <h3>{producto.description}</h3>
-      <p>Precio: ${producto.price}</p>
-      <p>Envío: ${producto.shippingCost}</p>
-      <strong>Total: ${producto.total}</strong>
+    <div className="product-card redesigned" onClick={handleClick}>
+      <img
+        src={producto.img}
+        alt={producto.description}
+        className="product-img"
+      />
+      <div className="product-info">
+        <h3>{producto.description}</h3>
+        <p className="product-price">Precio: ${producto.price}</p>
+        <p className="product-envio">Envío: ${producto.shippingCost}</p>
+        <strong>Total: ${producto.total}</strong>
+      </div>
     </div>
   );
 }
+
 
 // links de imagnes
 /*
