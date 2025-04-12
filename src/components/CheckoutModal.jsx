@@ -1,6 +1,5 @@
-// src/components/CheckoutModal.jsx
 import React, { useState } from "react";
-import { FaCcMastercard, FaCcVisa } from "react-icons/fa";
+import { FaCcMastercard, FaCcVisa, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import "./CheckoutModal.css";
 
 export default function CheckoutModal({ onClose }) {
@@ -16,14 +15,19 @@ export default function CheckoutModal({ onClose }) {
   });
 
   const [errors, setErrors] = useState({});
-  const [cardType, setCardType] = useState(null); // 'visa' | 'mastercard' | null
+  const [cardType, setCardType] = useState(null);
+  const [acceptanceToken, setAcceptanceToken] = useState(null);
+  const [cardToken, setCardToken] = useState(null);
+  const [loadingToken, setLoadingToken] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState("idle"); // idle, loading, success, error
+  const [showStatusModal, setShowStatusModal] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, type, checked } = e.target;
     let val = type === "checkbox" ? checked : value;
 
     if (name === "number") {
-      val = val.replace(/\D/g, "").slice(0, 16); // Solo números y máximo 16 dígitos
+      val = val.replace(/\D/g, "").slice(0, 16);
       if (val.startsWith("4")) {
         setCardType("mastercard");
       } else if (val.startsWith("5")) {
@@ -33,9 +37,28 @@ export default function CheckoutModal({ onClose }) {
       }
     }
 
-    if (name === "cvc" || name === "cvv" || name === "exp_month" || name === "exp_year") {
+    if (["cvc", "cvv", "exp_month", "exp_year"].includes(name)) {
       val = val.replace(/\D/g, "").slice(0, 3);
-      if (name === "cvc" || name === "cvv") val = val.slice(0, 3); // solo 3 dígitos
+      if (name === "exp_month" || name === "exp_year") {
+        val = val.slice(0, 2);
+      }
+    }
+
+    if (name === "termsAccepted" && checked) {
+      setLoadingToken(true);
+      try {
+        const res = await fetch("http://localhost:3000/merchant");
+        const data = await res.json();
+        if (data.acceptance_token) {
+          setAcceptanceToken(data.acceptance_token);
+        } else {
+          console.error("El campo 'acceptance_token' no está en la respuesta.");
+        }
+      } catch (err) {
+        console.error("Error al obtener el acceptance_token:", err);
+      } finally {
+        setLoadingToken(false);
+      }
     }
 
     setForm(prev => ({
@@ -43,7 +66,7 @@ export default function CheckoutModal({ onClose }) {
       [name]: val
     }));
 
-    setErrors((prev) => ({ ...prev, [name]: null }));
+    setErrors(prev => ({ ...prev, [name]: null }));
   };
 
   const validate = () => {
@@ -77,13 +100,64 @@ export default function CheckoutModal({ onClose }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validate()) {
-      console.log("Formulario válido:", form);
-      // Aquí puedes consumir APIs
-      onClose();
-    } else {
-      console.log("Errores en el formulario");
+  const handleSubmit = async () => {
+    if (!validate()) return;
+
+    setPaymentStatus("loading");
+
+    try {
+      const payload = {
+        number: form.number,
+        cvc: form.cvc || form.cvv,
+        exp_month: form.exp_month,
+        exp_year: form.exp_year,
+        card_holder: form.card_holder
+      };
+
+      const response = await fetch("http://localhost:3000/tokens/cards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      const tokenId = data?.data?.id;
+
+      if (tokenId) {
+        setCardToken(tokenId);
+
+        const paymentPayload = {
+          acceptance_token: acceptanceToken,
+          amount_in_cents: 3000000,
+          currency: "COP",
+          customer_email: "example@wompi.co",
+          payment_method: {
+            type: "CARD",
+            installments: parseInt(form.installments),
+            token: tokenId
+          },
+          reference: "3b4393bafed398ba2",
+          signature: "sk8-438k4-xmxm392-sn2m2490000COPprv_stagtest_5i0ZGIGiFcDQifYsXxvsny7Y37tKqFWg"
+        };
+
+        const paymentRes = await fetch("http://localhost:3000/payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(paymentPayload)
+        });
+
+        const paymentResult = await paymentRes.json();
+        console.log("🟢 Resultado del pago:", paymentResult);
+        setPaymentStatus("success");
+        setShowStatusModal(true);
+      } else {
+        setPaymentStatus("error");
+        setShowStatusModal(true);
+      }
+    } catch (error) {
+      console.error("❌ Error al procesar el pago:", error);
+      setPaymentStatus("error");
+      setShowStatusModal(true);
     }
   };
 
@@ -170,16 +244,47 @@ export default function CheckoutModal({ onClose }) {
             name="termsAccepted"
             checked={form.termsAccepted}
             onChange={handleChange}
+            disabled={loadingToken}
           />
-          Acepto términos y condiciones
+          {loadingToken ? "Cargando términos..." : "Acepto términos y condiciones"}
         </label>
         {errors.termsAccepted && <p className="error">{errors.termsAccepted}</p>}
 
-        <button disabled={!form.termsAccepted} onClick={handleSubmit}>
+        {paymentStatus === "loading" && <div className="spinner"></div>}
+
+        <button
+          disabled={!form.termsAccepted || loadingToken || paymentStatus === "loading"}
+          onClick={handleSubmit}
+        >
           Hacer Pedido
         </button>
         <button className="close-button" onClick={onClose}>Cerrar</button>
       </div>
+
+      {/* Modal flotante de estado */}
+      {showStatusModal && (
+        <div className="status-modal">
+          <div className="status-content">
+            {paymentStatus === "success" ? (
+              <>
+                <FaCheckCircle size={50} color="green" />
+                <p>¡Pago realizado con éxito!</p>
+              </>
+            ) : (
+              <>
+                <FaTimesCircle size={50} color="red" />
+                <p>Hubo un error al procesar el pago.</p>
+              </>
+            )}
+            <button onClick={() => {
+              setShowStatusModal(false);
+              if (paymentStatus === "success") {
+                onClose();
+              }
+            }}>Continuar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

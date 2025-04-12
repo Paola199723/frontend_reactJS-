@@ -29,39 +29,22 @@ export default function PaymentModal({ onClose }) {
     // Consumir API para obtener token de tarjeta
     const tokenRes = await fetch("http://localhost:3000/tokens/cards");
     const tokenData = await tokenRes.json();
-    const token = tokenData.id;
+    const token = tokenData.data.id;
+
+    if (!token) return;
 
     // JSON de prueba para pago
     const paymentPayload = {
       acceptance_token: acceptanceToken,
       amount_in_cents: 3000000,
       currency: "COP",
+      reference: "3b4393bafed398ba2",
       signature: "sk8-438k4-xmxm392-sn2m2490000COPprv_stagtest_5i0ZGIGiFcDQifYsXxvsny7Y37tKqFWg",
       customer_email: "example@wompi.co",
       payment_method: {
         type: "CARD",
         token,
         installments
-      },
-      payment_source_id: 1234,
-      redirect_url: "https://mitienda.com.co/pago/resultado",
-      reference: "83f1df15-3003-41ef-9d54-1e90003a6f68",
-      expiration_time: "2025-06-09T20:28:50.000Z",
-      customer_data: {
-        phone_number: "573307654321",
-        full_name: "Juan Alfonso Pérez Rodríguez",
-        legal_id: "1234567890",
-        legal_id_type: "CC"
-      },
-      shipping_address: {
-        address_line_1: "Calle 34 # 56 - 78",
-        address_line_2: "Apartamento 502, Torre I",
-        country: "CO",
-        region: "Cundinamarca",
-        city: "Bogotá",
-        name: "Pepe Perez",
-        phone_number: "573109999999",
-        postal_code: "111111"
       }
     };
 
