@@ -17,6 +17,11 @@ compilar con npm run dev
 # 🛍️ Tienda Online - Frontend
 Este es el frontend de una tienda online desarrollado con React y Vite, el cual permite a los usuarios explorar productos, agregarlos al carrito y realizar pagos con tarjeta.
 
+# URL
+https://main.d1o6dhc5a36kq8.amplifyapp.com
+
+# FrontEnd desplegado en AWS Amplify
+
 # 🚀 Tecnologías principales
 ⚛️ React
 
