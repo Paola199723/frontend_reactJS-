@@ -14,3 +14,59 @@ If you are developing a production application, we recommend using TypeScript an
 proyecto hecho con react y vite
 compilar con npm run dev
 
+🛍️ Tienda Online - Frontend
+Este es el frontend de una tienda online desarrollado con React y Vite, el cual permite a los usuarios explorar productos, agregarlos al carrito y realizar pagos con tarjeta.
+
+🚀 Tecnologías principales
+⚛️ React
+
+⚡ Vite
+
+💳 API de pagos (integrada con backend propio)
+
+💅 CSS personalizado
+
+📦 Axios
+
+🛒 Manejo de carrito con estado global (React Context)
+
+🎨 Características
+Catálogo de productos dinámico.
+
+Vista detallada de cada producto.
+
+Carrito de compras con cantidad y precios actualizados.
+
+Formulario de pago con validación.
+
+Modales de confirmación y estados de compra.
+
+Categorías y filtro por tipo.
+
+Diseño responsive para móviles y escritorio.
+
+🔌 APIs Consumidas
+El frontend se comunica con un backend desplegado (por ejemplo, en Render) a través de las siguientes rutas:
+
+🔍 Productos
+GET /products
+Retorna todos los productos disponibles.
+
+GET /products/:id
+Retorna el detalle de un producto específico.
+
+🛒 Tokens (Tarjetas)
+POST /tokens/cards
+Envía los datos de la tarjeta para generar un token.
+
+🧾 Comerciantes
+GET /merchant
+Retorna los datos del comercio, incluyendo el acceptance_token necesario para procesar pagos.
+
+💳 Pagos
+POST /payment
+Realiza el pago usando el token generado, el acceptance_token, y el payload completo.
+
+
+
+

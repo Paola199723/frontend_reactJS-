@@ -1,6 +1,8 @@
 // src/components/PaymentModal.jsx
 import React, { useEffect, useState } from "react";
+import api from "../api/api";
 import "./PaymentModal.css";
+
 
 export default function PaymentModal({ onClose }) {
   const [cardNumber, setCardNumber] = useState("");
@@ -18,7 +20,7 @@ export default function PaymentModal({ onClose }) {
 
   // Obtener token de aceptación
   useEffect(() => {
-    fetch("http://localhost:3000/merchant")
+    api.get("/merchant")
       .then((res) => res.json())
       .then((data) => setAcceptanceToken(data.acceptance_token));
   }, []);
@@ -27,7 +29,7 @@ export default function PaymentModal({ onClose }) {
     if (!termsAccepted) return;
 
     // Consumir API para obtener token de tarjeta
-    const tokenRes = await fetch("http://localhost:3000/tokens/cards");
+    const tokenRes = await fetch("/tokens/cards");
     const tokenData = await tokenRes.json();
     const token = tokenData.data.id;
 
@@ -48,7 +50,7 @@ export default function PaymentModal({ onClose }) {
       }
     };
 
-    await fetch("http://localhost:3000/payment", {
+    await fetch("/payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(paymentPayload)

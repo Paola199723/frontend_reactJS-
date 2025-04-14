@@ -5,13 +5,16 @@ import ProductCard from "./ProductCard";
 export default function Productos() {
   const [productos, setProductos] = useState([]);
 
+ 
   useEffect(() => {
     api.get('/products')
-      .then(response => {
+      .then((response) => {
+        console.log("🔍 Productos:", response.data);
         setProductos(response.data);
       })
-      .catch(error => {
-        console.error("Error al obtener productos:", error);
+      .catch((error) => {
+        console.error("❌ Error al obtener productos:", error);
+        setProductos([]); // En caso de error, evita que falle el map
       });
   }, []);
 

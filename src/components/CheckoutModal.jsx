@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { FaCcMastercard, FaCcVisa, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import api from "../api/api";
 import "./CheckoutModal.css";
+
 
 export default function CheckoutModal({ onClose }) {
   const [form, setForm] = useState({
@@ -28,9 +30,9 @@ export default function CheckoutModal({ onClose }) {
 
     if (name === "number") {
       val = val.replace(/\D/g, "").slice(0, 16);
-      if (val.startsWith("4")) {
+      if (val.startsWith("5")) {
         setCardType("mastercard");
-      } else if (val.startsWith("5")) {
+      } else if (val.startsWith("4")) {
         setCardType("visa");
       } else {
         setCardType(null);
@@ -47,13 +49,16 @@ export default function CheckoutModal({ onClose }) {
     if (name === "termsAccepted" && checked) {
       setLoadingToken(true);
       try {
-        const res = await fetch("http://localhost:3000/merchant");
-        const data = await res.json();
+        
+        const res = await api.get("/merchant");
+        const data = res.data;
+        
         if (data.acceptance_token) {
           setAcceptanceToken(data.acceptance_token);
         } else {
           console.error("El campo 'acceptance_token' no está en la respuesta.");
         }
+        
       } catch (err) {
         console.error("Error al obtener el acceptance_token:", err);
       } finally {
@@ -114,13 +119,9 @@ export default function CheckoutModal({ onClose }) {
         card_holder: form.card_holder
       };
 
-      const response = await fetch("http://localhost:3000/tokens/cards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      const response = await api.post("/tokens/cards", payload);
 
-      const data = await response.json();
+      const data = response.data;
       const tokenId = data?.data?.id;
 
       if (tokenId) {
@@ -130,7 +131,7 @@ export default function CheckoutModal({ onClose }) {
           acceptance_token: acceptanceToken,
           amount_in_cents: 3000000,
           currency: "COP",
-          customer_email: "example@wompi.co",
+          customer_email: "procesoseleccionbackend@yopmail.com",
           payment_method: {
             type: "CARD",
             installments: parseInt(form.installments),
@@ -139,14 +140,10 @@ export default function CheckoutModal({ onClose }) {
           reference: "3b4393bafed398ba2",
           signature: "sk8-438k4-xmxm392-sn2m2490000COPprv_stagtest_5i0ZGIGiFcDQifYsXxvsny7Y37tKqFWg"
         };
+        console.log("📦 Payload que se enviará:", paymentPayload);
 
-        const paymentRes = await fetch("http://localhost:3000/payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(paymentPayload)
-        });
-
-        const paymentResult = await paymentRes.json();
+        const paymentRes = await api.post("/payment", paymentPayload);
+        const paymentResult = paymentRes.data;
         console.log("🟢 Resultado del pago:", paymentResult);
         setPaymentStatus("success");
         setShowStatusModal(true);

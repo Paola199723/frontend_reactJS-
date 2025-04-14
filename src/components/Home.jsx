@@ -10,9 +10,16 @@ const Home = () => {
 
   useEffect(() => {
     api.get('/products')
-      .then(response => setProductos(response.data))
-      .catch(error => console.error("Error al obtener productos:", error));
+      .then((response) => {
+        console.log("🔍 Productos:", response);
+        setProductos(response.data);
+      })
+      .catch((error) => {
+        console.error("❌ Error al obtener productos:", error);
+        setProductos([]); // En caso de error, evita que falle el map
+      });
   }, []);
+  
 
   return (
     <div>
@@ -28,12 +35,12 @@ const Home = () => {
       <section id="productos" style={styles.productSection}>
         <h2 style={styles.subheading}>Nuestros Productos</h2>
         <div style={styles.productGrid}>
-          {productos.length === 0 ? (
-            <p>No hay productos disponibles.</p>
-          ) : (
-            productos.map(producto => (
-              <ProductCard key={producto.id} producto={producto} />
-            ))
+        {Array.isArray(productos) && productos.length > 0 ? (
+          productos.map((producto) => (
+          <ProductCard key={producto.id} producto={producto} />
+          ))
+            ) : (
+          <p>No hay productos disponibles.</p>
           )}
         </div>
       </section>
