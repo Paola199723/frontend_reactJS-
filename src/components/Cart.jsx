@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    removeFromCart,
-    selectCartItems,
-    selectTotalItems,
-    selectTotalPagar,
-    updateQuantity
+  removeFromCart,
+  selectCartItems,
+  selectTotalItems,
+  selectTotalPagar,
+  updateQuantity
 } from "../redux/slice/cartSlice";
 import CheckoutModal from "./CheckoutModal";
 import "./CheckoutModal.css";
@@ -31,6 +31,7 @@ const Cart = () => {
       }}>
         <h2>Resumen de compra</h2>
         <p><strong>Total de artículos:</strong> {totalItems}</p>
+        <p><strong>Impuesto 19%:</strong> ${Math.round(totalPagar * 0.19)}</p>
         <p><strong>Total a pagar:</strong> ${totalPagar.toLocaleString()}</p>
         <button style={styles.button} disabled={cartItems.length === 0} onClick={() => setShowCheckout(true)} >
           Hacer Pedido

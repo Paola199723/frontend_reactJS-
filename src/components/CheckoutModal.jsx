@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaCcMastercard, FaCcVisa, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import api from "../api/api";
 import "./CheckoutModal.css";
@@ -23,6 +23,7 @@ export default function CheckoutModal({ onClose }) {
   const [loadingToken, setLoadingToken] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("idle"); // idle, loading, success, error
   const [showStatusModal, setShowStatusModal] = useState(false);
+ const [invoiceData, setInvoiceData] = useState(null);
 
   const handleChange = async (e) => {
     const { name, value, type, checked } = e.target;
@@ -109,6 +110,7 @@ export default function CheckoutModal({ onClose }) {
     if (!validate()) return;
 
     setPaymentStatus("loading");
+    setInvoiceData(null);
 
     try {
       const payload = {
@@ -146,15 +148,18 @@ export default function CheckoutModal({ onClose }) {
         const paymentResult = paymentRes.data;
         console.log("🟢 Resultado del pago:", paymentResult);
         setPaymentStatus("success");
+        setInvoiceData(paymentResult);
         setShowStatusModal(true);
       } else {
         setPaymentStatus("error");
         setShowStatusModal(true);
+        setInvoiceData(null);
       }
     } catch (error) {
       console.error("❌ Error al procesar el pago:", error);
       setPaymentStatus("error");
       setShowStatusModal(true);
+      setInvoiceData(null);
     }
   };
 
@@ -260,27 +265,57 @@ export default function CheckoutModal({ onClose }) {
 
       {/* Modal flotante de estado */}
       {showStatusModal && (
-        <div className="status-modal">
-          <div className="status-content">
-            {paymentStatus === "success" ? (
-              <>
-                <FaCheckCircle size={50} color="green" />
-                <p>¡Pago realizado con éxito!</p>
-              </>
-            ) : (
-              <>
-                <FaTimesCircle size={50} color="red" />
-                <p>Hubo un error al procesar el pago.</p>
-              </>
-            )}
-            <button onClick={() => {
-              setShowStatusModal(false);
-              if (paymentStatus === "success") {
-                onClose();
-              }
-            }}>Continuar</button>
-          </div>
-        </div>
+  <div className="status-modal">
+    <div className="status-content">
+
+      {paymentStatus === "success" ? (
+        <>
+          <FaCheckCircle size={50} color="green" />
+          <p>¡Pago realizado con éxito!</p>
+
+          {invoiceData && (
+            <div className="invoice">
+              <h3>🧾 Factura de Pago</h3>
+
+              <div className="invoice-row">
+                <span><strong>ID:</strong></span>
+                <span>{invoiceData.id_transaction}</span>
+              </div>
+
+              <div className="invoice-row">
+                <span><strong>Impuesto:</strong></span>
+                <span>{invoiceData.impuesto}</span>
+              </div>
+
+              <div className="invoice-row">
+                <span><strong>Total:</strong></span>
+                <span>
+                  ${invoiceData.total.toLocaleString("es-CO")}
+                </span>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <FaTimesCircle size={50} color="red" />
+          <p>Hubo un error al procesar el pago.</p>
+        </>
+      )}
+
+      <button
+        onClick={() => {
+          setShowStatusModal(false);
+          if (paymentStatus === "success") {
+            onClose();
+          }
+        }}
+      >
+        Continuar
+      </button>
+
+    </div>
+  </div>
       )}
     </div>
   );
